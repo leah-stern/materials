@@ -1,0 +1,20 @@
+version: "2"
+
+services:
+  postgres:
+    image: postgres:9.6
+    volumes:
+      - /Users/leahstern/Documents/materials-postgresql:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    env_file:
+      - .env
+  app:
+    build: .
+    entrypoint: 'python3 main.py'
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./:/src
+    env_file:
+      - .env

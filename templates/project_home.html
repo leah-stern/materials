@@ -1,0 +1,20 @@
+<doctype html>
+
+<html>
+	<head>
+		<title>Project Database</title>
+		<h1>Welcome to the Project Database!</h1>
+	</head>
+
+	<body>
+		{% from "formhelpers.html" import render_field %}
+		<form method="POST" action="/">
+			<p>Project Name: <input type="text" name="Name"/></p>
+			<!-- <p>Sheet URL: <input type="text" name="URL"/></p> -->
+			<input type="submit" value="Add">
+		</form>
+
+		<h2>All Projects</h2>
+		{{table}}
+	</body>
+</html>

@@ -1,0 +1,111 @@
+<doctype html>
+
+<html>
+	<head>
+		<title>Chemical Inventory</title>
+		<h1>Chemical Inventory</h1>
+		<!-- <link rel="stylesheet" type="text/css" href="../templates/style.css"> -->
+		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css">
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"></script>
+	</head>
+
+	<body>
+		<!-- add button, triggers popup -->
+		<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModalLong">+</button>
+
+		<!-- popup -->
+		<div class="modal fade" id="exampleModalLong" tabindex="-1" role="dialog" aria-labelledby="exampleModalLongTitle" aria-hidden="true">
+		  <div class="modal-dialog" role="document">
+		    <div class="modal-content">
+		      <div class="modal-header">
+		        <h5 class="modal-title" id="exampleModalLongTitle">New Chemical</h5>
+		        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+		          <span aria-hidden="true">&times;</span>
+		        </button>
+		      </div>
+		      <div class="modal-body">
+		        
+		        <!-- display form in popup -->
+				{% from "formhelpers.html" import render_field %}
+				<form method="POST" action="/">
+					<p>Chemical Name: <input type="text" name="Name"/></p>
+					<p>Alternate Name: <input type="text" name="Alternate name"/></p>
+					<p>Vendor: <input type="text" name="Vendor"/></p>
+					<p>CAS Number: <input type="text" name="CAS"/></p>
+					<p>Description: <input type="text" name="Description"/></p>
+
+					<!-- safety information dropdown -->
+					<p>
+						<button class="btn btn-primary" type="button" data-toggle="collapse" data-target="#collapse1" aria-expanded="false" aria-controls="collapse1">
+	    					Safety Information
+	  					</button>
+					</p>
+					<div class="collapse" id="collapse1">
+  						<div class="card card-body">
+  							<p>Hazard Note: <input type="text" name="Hazard Note"/></p>
+							<p>GHS Hazards: <br>
+								<input type="checkbox" name="Flammable">Flammable<br>
+								<input type="checkbox" name="Explosive">Explosive<br>
+								<input type="checkbox" name="Health Hazard">Health Hazard<br>
+								<input type="checkbox" name="Oxidizing">Oxidizing<br>
+								<input type="checkbox" name="Compressed Gas">Compressed Gas<br>
+								<input type="checkbox" name="Irritant">Irritant<br>
+								<input type="checkbox" name="Environment">Environmental Hazard<br>
+								<input type="checkbox" name="Corrosive">Corrosive<br>
+								<input type="checkbox" name="Toxic">Toxic<br>
+							</p>
+  						</div>
+					</div>
+
+					<!-- location dropdown -->
+					<p>
+						<button class="btn btn-primary" type="button" data-toggle="collapse" data-target="#collapse2" aria-expanded="false" aria-controls="collapse2">
+	    					Location
+	  					</button>
+					</p>
+					<div class="collapse" id="collapse2">
+  						<div class="card card-body">
+  							<p>Building: <input type="text" name="Building"/></p>
+  							<p>Room: <input type="text" name="Room"/></p>
+  							<p>Cabinet: <input type="text" name="Cabinet"/></p>
+  							<p>Shelf: <input type="text" name="Shelf"/></p>
+  						</div>
+					</div>
+
+		      </div>
+		      <div class="modal-footer">
+		        <input type="submit" class="btn btn-secondary" name="button" value="Add">
+		      </div>
+		      </form>
+		    </div>
+		  </div>
+		</div>
+
+		{% from "formhelpers.html" import render_field %}
+		<form method="POST" action="/">
+<!-- 			<script>
+				$(document).ready(function() {
+					$("#input").on("keyup", function() {
+						var val = $(this).val().toLowerCase();
+						$("#table").filter(function() {
+							$(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+						});
+					});
+				});
+				// 	var availableTags = allTags
+				// 	// var availableTags = {{allTags|tojson|safe}};
+				// 	$("#tags").autocomplete({source: allTags});
+				// });
+			</script> -->
+
+			{{ searchForm.csrf_token }}
+ 			{{ render_field(searchForm.search) }}
+			<input id="input" type="submit" name="button" placeholder="Search...">
+		</form>
+
+		<h2>All Chemicals</h2>
+		{{table}}
+	</body>
+</html>
