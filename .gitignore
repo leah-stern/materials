@@ -2,3 +2,5 @@ __pycache__
 tutorial-env
 .env
 old
+credentials.json
+client_secret.json
