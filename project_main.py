@@ -1,3 +1,10 @@
+from __future__ import print_function
+import pickle
+import os.path
+from googleapiclient.discovery import build
+from google_auth_oauthlib.flow import InstalledAppFlow
+from google.auth.transport.requests import Request
+
 from project_db import db, app, Project, addProject, Display
 from flask import render_template, request, redirect
 from wtforms.ext.sqlalchemy.fields import QuerySelectField
@@ -7,8 +14,13 @@ from googleapiclient.discovery import build
 from google_auth_oauthlib.flow import InstalledAppFlow
 from google.auth.transport.requests import Request
 
-@app.route('/', methods=['GET', 'POST'])
-def home():
+# Scopes for Google Drive and Google Sheets APIs
+SCOPES = ['https://www.googleapis.com/auth/drive',
+          'https://www.googleapis.com/auth/spreadsheets']
+
+
+@app.route('/formulations', methods=['GET', 'POST'])
+def formulation_database():
 	# create database
 	db.drop_all()
 	db.create_all()

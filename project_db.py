@@ -8,7 +8,7 @@ from sqlalchemy.orm import relationship
 app = Flask(__name__)
 app.config['SECRET_KEY'] = '41e2419b1b446d6eb75f46ee078cbf54'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///site.db'
-db = SQLAlchemy(app)
+formula_db = SQLAlchemy(app)
 
 class Project(db.Model):
 	id = db.Column(db.Integer, primary_key=True)
