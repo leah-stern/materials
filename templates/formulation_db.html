@@ -1,0 +1,19 @@
+<doctype html>
+
+<html>
+	<head>
+		<title>Formulation Database</title>
+		<h1>Formulation Database</h1>
+	</head>
+
+	<body>
+		{% from "formhelpers.html" import render_field %}
+		<form method="POST" action="/formulations">
+			<p>Project Name: <input type="text" name="Name"/></p>
+			<input type="submit" name="button" onclick="window.location.href='{{url_for('create_sheet')}}';"value="Add">
+		</form>
+
+		<h2>All Projects</h2>
+		{{table}}
+	</body>
+</html>
