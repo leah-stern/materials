@@ -1,0 +1,34 @@
+/*input[type=checkbox] {
+	display: none;
+}
+
+input[type=checkbox]:checked + label {
+	background-image: url("images/flammable.jpg");
+	width: 400px;
+	height: 100px;
+}*/
+h1 {
+	font-weight: bold;
+	color: #03b1fc;
+	padding-top: 10px;
+}
+
+#bootstrap-override tbody {
+	line-height: 1;
+}
+  
+#bootstrap-override tr { 
+	line-height: 1;
+} 
+
+.table-striped > tbody > tr:nth-child(odd).clickable:hover > td {
+	background-color: #cce3ed;
+}
+
+.clickable { 
+    height: 40px; 
+} 
+  
+.clickable:hover { 
+	background-color: #cce3ed;
+} 

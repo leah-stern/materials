@@ -3,17 +3,44 @@
 <html>
 	<head>
 		<title>Formulation Database</title>
-		<h1>Formulation Database</h1>
+		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css">
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"></script>
+		<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 	</head>
 
 	<body>
-		{% from "formhelpers.html" import render_field %}
-		<form method="POST" action="/formulations">
-			<p>Project Name: <input type="text" name="Name"/></p>
-			<input type="submit" name="button" onclick="window.location.href='{{url_for('create_sheet')}}';"value="Add">
-		</form>
+		<h1 align="center">Formulation Database</h1>
+		<div class="container" style="display:flex; justify-content:flex-start; width:100%; padding-top: 20px">
+			{% from "formhelpers.html" import render_field %}
+			<form method="POST" action="/formulations">
+				<p>New Project Name: <input type="text" name="Name"/>
+				<input type="submit" name="button" class="btn btn-primary" onclick="window.location.href='{{url_for('create_sheet')}}';"value="+">
+			</p>
+			</form>
+		</div>
 
-		<h2>All Projects</h2>
-		{{table}}
+		<div class="container" align="left">
+		  <h2 align="left">All Projects</h2>
+		  <div class="row">
+		    <div class="col-sm">
+				<table class="table table-striped" id="owned_stock_table">
+			      <thead>
+			        <tr>
+			          <th>Name</th>
+			        </tr>
+			      </thead>
+			      <tbody>
+			        {% for project in projects %}
+			        <tr>
+			          <td>{{ project.name }}</td>
+			        </tr>
+			        {% endfor %}
+			      </tbody>
+			    </table>
+			</div>
+		  </div>
+	    </div>
 	</body>
 </html>

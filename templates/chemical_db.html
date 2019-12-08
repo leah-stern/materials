@@ -3,17 +3,22 @@
 <html>
 	<head>
 		<title>Chemical Inventory</title>
-		<h1>Chemical Inventory</h1>
-		<!-- <link rel="stylesheet" type="text/css" href="../templates/style.css"> -->
 		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css">
+		<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
 		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"></script>
 	</head>
 
 	<body>
+		<h1 align="center">Chemical Inventory</h1>
+
+		<div class="container" align="center">
 		<!-- add button, triggers popup -->
-		<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModalLong">+</button>
+		<div style="display:flex; justify-content:flex-start; width:100%;">
+			<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModalLong">+</button>
+		</div>
+		</div>
 
 		<!-- popup -->
 		<div class="modal fade" id="exampleModalLong" tabindex="-1" role="dialog" aria-labelledby="exampleModalLongTitle" aria-hidden="true">
@@ -29,7 +34,7 @@
 		        
 		        <!-- display form in popup -->
 				{% from "formhelpers.html" import render_field %}
-				<form method="POST" action="/">
+				<form method="POST" action="/chemicals">
 					<p>Chemical Name: <input type="text" name="Name"/></p>
 					<p>Alternate Name: <input type="text" name="Alternate name"/></p>
 					<p>Vendor: <input type="text" name="Vendor"/></p>
@@ -83,29 +88,56 @@
 		  </div>
 		</div>
 
+ 		<div class="container" align="center" style="display:flex; justify-content:flex-start; width:100%; padding-top: 10px">
 		{% from "formhelpers.html" import render_field %}
-		<form method="POST" action="/">
-<!-- 			<script>
-				$(document).ready(function() {
-					$("#input").on("keyup", function() {
-						var val = $(this).val().toLowerCase();
-						$("#table").filter(function() {
-							$(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+			<form method="POST" action="/chemicals">
+	<!-- 			<script>
+					$(document).ready(function() {
+						$("#input").on("keyup", function() {
+							var val = $(this).val().toLowerCase();
+							$("#table").filter(function() {
+								$(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+							});
 						});
 					});
-				});
-				// 	var availableTags = allTags
-				// 	// var availableTags = {{allTags|tojson|safe}};
-				// 	$("#tags").autocomplete({source: allTags});
-				// });
-			</script> -->
+					// 	var availableTags = allTags
+					// 	// var availableTags = {{allTags|tojson|safe}};
+					// 	$("#tags").autocomplete({source: allTags});
+					// });
+				</script> -->
 
-			{{ searchForm.csrf_token }}
- 			{{ render_field(searchForm.search) }}
-			<input id="input" type="submit" name="button" placeholder="Search...">
-		</form>
+				{{ searchForm.csrf_token }}
+	 			{{ render_field(searchForm.search(placeholder="Search...")) }}
+	 			<input id="input" type="submit" name="button" style="display: none;">
+	 		</form>
+		</div>
 
-		<h2>All Chemicals</h2>
-		{{table}}
+		<div class="container" align="center">
+		  <h2 align="left">All Chemicals</h2>
+		  <div class="row">
+		    <div class="col-sm">
+				<table class="table table-striped">
+			      <thead>
+			        <tr>
+			          <th>Name</th>
+			          <th>Vendor</th>
+			          <th>CAS Number</th>
+			          <th>Room Location</th>
+			        </tr>
+			      </thead>
+			      <tbody id="bootstrap-override">
+			        {% for chemical in chemicals %}
+			        <tr class="clickable" onclick="window.location.href='{{url_for('more_info')}}';">
+			          <td>{{ chemical.name }}</td>
+			          <td>{{ chemical.vendor }}</td>
+			          <td>{{ chemical.CAS }}</td>
+			          <td>{{ chemical.room_location }}</td>
+			        </tr>
+			        {% endfor %}
+			      </tbody>
+			    </table>
+			</div>
+		  </div>
+	    </div>
 	</body>
 </html>

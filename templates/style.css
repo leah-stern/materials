@@ -1,9 +1,0 @@
-input[type=checkbox] {
-	display: none;
-}
-
-input[type=checkbox]:checked + label {
-	background-image: url("images/flammable.jpg");
-	width: 400px;
-	height: 100px;
-}

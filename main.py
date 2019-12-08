@@ -1,16 +1,36 @@
-from chemical_db import db, app, Chemical, addChemical, displayChemicals, searchForm, Project, addProject, displayFormulas
+from __future__ import print_function
+import pickle
+import os.path
+import flask
+import google.oauth2.credentials
+import google_auth_oauthlib.flow
+import googleapiclient.discovery
+from httplib2 import Http
+import oauth2client
+from oauth2client import file, client, tools
+from googleapiclient.discovery import build
+from google_auth_oauthlib.flow import InstalledAppFlow
+from google.auth.transport.requests import Request
+from database import db, app, Chemical, addChemical, displayChemicals, searchForm, Project, addProject, displayFormulas
 from flask import render_template, request, redirect
 from wtforms.ext.sqlalchemy.fields import QuerySelectField
 from oauth2client.service_account import ServiceAccountCredentials
 import gspread
-import test_drive
-import logging
+import os
+
+# Scopes for Google Drive and Google Sheets APIs
+SCOPES = ['https://www.googleapis.com/auth/drive',
+      'https://www.googleapis.com/auth/spreadsheets']
+
+CLIENT_SECRETS_FILE = "client_id.json"
+
+os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'
 
 @app.route('/', methods=['GET', 'POST'])
 def home():
     # create database
     # db.drop_all()
-    db.create_all(bind='formulations')
+    db.create_all()
     return render_template("home.html")
 
 @app.route('/chemicals', methods=['GET', 'POST'])
@@ -22,6 +42,7 @@ def chemical_inventory():
     search = searchForm(request.form)
 
     if request.method == 'POST':
+        print('created', flush=True)
         if request.form['button'] == 'Add':
             create_chemical(form)
         else: 
@@ -30,14 +51,11 @@ def chemical_inventory():
     # get all names for autofill search
     tags = [chemical.name for chemical in Chemical.query.all()]
 
-    # get all chemicals to display in table format, order by name
-    all_chemicals = displayChemicals(Chemical.query.order_by(Chemical.name).all())
-    all_chemicals.border = True
-
-    # test_drive.create_sheet(Chemical.query.order_by(Chemical.name).all())
+    # # get all chemicals to display in table format, order by name
+    all_chemicals = Chemical.query.order_by(Chemical.name).all()
 
     # render the form and all chemicals
-    return render_template("chemical_db.html", form=form, table=all_chemicals, allTags=tags, searchForm=search)
+    return render_template("chemical_db.html", form=form, allTags=tags, searchForm=search, chemicals=all_chemicals)
 
 # Create a new chemical based on form entries and add it to the database
 def create_chemical(form):
@@ -76,14 +94,17 @@ def create_chemical(form):
 # Search chemicals by name
 def search_chemical(form):
     selection = form.data['search']
-    print(selection)
 
     results = Chemical.query.filter(Chemical.name==str(selection))
 
-    result_table = Display(results)
+    result_table = displayChemicals(results)
     result_table.border = True
 
     return render_template('results.html', table=result_table)
+
+@app.route('/more_info', methods=['GET', 'POST'])
+def more_info():
+    return render_template("more_info.html")
 
 # TODO: this could be a lot more elegant, a loop or switch statement would probably be better
 def assign_GHS_values(form, newChemical):
@@ -118,7 +139,6 @@ def assign_GHS_values(form, newChemical):
 def formulation_database():
     # create form for adding new project to database
     form = addProject(request.form)
-    logging.info("here")
 
     # validate form
     if request.method == 'POST':
@@ -126,38 +146,48 @@ def formulation_database():
             name=request.form.get("Name")
         )
 
-        print("NEW PROJECT ALERT: ", newProject.name)
         # add and commit new chemical
         db.session.add(newProject)
         db.session.commit()
 
-        create_sheet(newProject.name)
+        # create_sheet(newProject.name)
         print('created')
 
     # get all projects to display in table format
-    all_projects = displayFormulas(Project.query.all())
-    all_projects.border = True
+    all_projects = Project.query.order_by(Project.name).all()
 
     # render the form and all projects
-    return render_template("project_home.html", form=form, table=all_projects)
+    return render_template("formulation_db.html", form=form, projects=all_projects)
 
+@app.route('/create_project_sheet', methods=['GET', 'POST'])
 def create_sheet(projectName):
-    creds = None
-    # The file token.pickle stores the user's access and refresh tokens, and is
-    # created automatically when the authorization flow completes for the first
-    # time.
-    if not creds or not creds.valid:
-        if creds and creds.expired and creds.refresh_token:
-            creds.refresh(Request())
-        else:
-            flow = InstalledAppFlow.from_client_secrets_file(
-                'credentials.json', SCOPES)
-            creds = flow.run_local_server(port=0)
-        # Save the credentials for the next run
-        with open('token.pickle', 'wb') as token:
-            pickle.dump(creds, token)
+    # creds = None
+    # # The file token.pickle stores the user's access and refresh tokens, and is
+    # # created automatically when the authorization flow completes for the first
+    # # time.
+    # if not creds or not creds.valid:
+    #     print("here2!", flush=True)
+    #     if creds and creds.expired and creds.refresh_token:
+    #         creds.refresh(Request())
+    #     else:
+    #         print("here3!", flush=True)
+    #         flow = InstalledAppFlow.from_client_secrets_file(
+    #             'credentials.json', SCOPES)
+    #         creds = flow.run_flow(port=8080)
+    #         print("here4!", flush=True)
+    #     # Save the credentials for the next run
+    #     print("here5!", flush=True)
+    #     with open('token.pickle', 'wb') as token:
+    #         pickle.dump(creds, token)
 
-    service = build('drive', 'v3', credentials=creds)
+    store = oauth2client.file.Storage('storage.json')
+    creds = store.get()
+    if not creds or creds.invalid:
+        flow = client.flow_from_clientsecrets('client_id.json', SCOPES)
+        creds = tools.run_flow(flow, store)
+
+    print("here6!", flush=True)
+    service = build('drive', 'v4', credentials=creds, http=creds.authorize(Http()))
     sheets = build('sheets', 'v4', credentials=creds)
 
     body = {

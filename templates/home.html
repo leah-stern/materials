@@ -2,18 +2,21 @@
 
 <html>
 <head>
-	<title>Materials Hub</title>
-	<h1>Welcome to the Materials Hub!</h1>
-	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css">
-	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
-	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"></script>
+    <title>Materials Hub</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"></script>
 </head>
 
 <body>
-	<button type="button" onclick="window.location.href='{{url_for('chemical_inventory')}}';">Chemical Inventory
-	</button>
-	<button type="button" onclick="window.location.href='{{url_for('formulation_database')}}';">Formulation Database
-	</button>
+    <h1 align="center">Welcome to the Materials Hub!</h1>
+    <div class="container" align="center">
+        <button type="button" class="btn btn-primary" onclick="window.location.href='{{url_for('chemical_inventory')}}';">Chemical Inventory
+        </button>
+        <button type="button" class="btn btn-primary" onclick="window.location.href='{{url_for('formulation_database')}}';">Formulation Database
+        </button>
+    </div>
 </body>
 </html>
