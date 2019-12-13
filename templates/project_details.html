@@ -1,0 +1,53 @@
+<doctype html>
+
+<html>
+	<head>
+		<title>{{selected.name}} Details</title>
+		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css">
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"></script>
+		<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+	</head>
+
+	<body>
+
+	<div class="jumbotron">
+		<div style="width:10%; padding-left: 10px;">
+			<button type="button" class="btn btn-primary" onclick="window.location.href='/formulations';">Back</button>
+		</div>
+	  <h1 class="display-4" align="center">{{selected.name}}</h1>
+	  <p class="lead" align="center">{{selected.goal}}</p>
+	  <hr class="my-4">
+	  <p align="center">Project Lead: {{selected.project_lead}}</p>
+	  <p align="center">Date Created: {{selected.date_started}}</p>
+	</div>
+
+	<div id="accordion" class="bootstrap-override">
+	  {% for formula in selected.formulations.all() %}
+	  <div class="card">
+	    <div class="card-header" id="heading">
+	      <h5 class="mb-0">
+	        <button class="btn btn-link collapsed" data-toggle="collapse" data-target="#collapse_{{formula.formula_id}}" aria-expanded="false" aria-controls="collapse_{{formula.formula_id}}">
+	          {{formula.name}}
+	        </button>
+	      </h5>
+	    </div>
+
+	    <div id="collapse_{{formula.formula_id}}" class="collapse" aria-labelledby="heading" data-parent="#accordion">
+	      <div class="card-body">
+	      	<h2>Chemical ingredients:</h2>
+	      	{% for chemical in formula.chemicals.all() %}
+	      		<ul>
+	      			<li>{{chemical.name}}</li>
+	      		</ul>
+	      	{% endfor %}
+	      </div>
+	    </div>
+	  </div>
+	  {% endfor %}
+	</div>
+
+	</body>
+</html>
+

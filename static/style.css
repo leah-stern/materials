@@ -10,7 +10,18 @@ input[type=checkbox]:checked + label {
 h1 {
 	font-weight: bold;
 	color: #03b1fc;
+	padding-top: 20px;
+}
+
+h2 {
+	font-size: 20px;
 	padding-top: 10px;
+}
+
+.wrapper {
+    display: flex;
+    width: 100%;
+    align-items: stretch;
 }
 
 #bootstrap-override tbody {
@@ -20,6 +31,13 @@ h1 {
 #bootstrap-override tr { 
 	line-height: 1;
 } 
+
+.bootstrap-override {
+  margin: auto;
+  width: 70%;
+  padding: 20px;
+
+}
 
 .table-striped > tbody > tr:nth-child(odd).clickable:hover > td {
 	background-color: #cce3ed;
@@ -31,4 +49,54 @@ h1 {
   
 .clickable:hover { 
 	background-color: #cce3ed;
+	border-left: 1px solid #343a40;
 } 
+
+.hidden {
+	display:none;
+}
+
+.modal.right .modal-dialog {
+	position: fixed;
+	margin: auto;
+	width: 500px;
+	height: 100%;
+	-webkit-transform: translate3d(0%, 0, 0);
+	    -ms-transform: translate3d(0%, 0, 0);
+	     -o-transform: translate3d(0%, 0, 0);
+	        transform: translate3d(0%, 0, 0);
+}
+
+.modal.right .modal-content {
+	height: 100%;
+	overflow-y: auto;
+	text-align: left;
+}
+
+.modal.right .modal-body {
+	padding: 15px 15px 80px;
+}
+
+.modal.right.fade .modal-dialog {
+	right: 0px;
+	-webkit-transition: opacity 0.3s ease-out, right 0.3s ease-out;
+	-moz-transition: opacity 0.3s ease-out, right 0.3s ease-out;
+	-o-transition: opacity 0.3s ease-out, right 0.3s ease-out;
+	transition: opacity 0.3s ease-out, right 0.3s ease-out;
+}
+
+.modal.right.fade.in .modal-dialog {
+	right: 0;
+} 
+
+/* ----- MODAL STYLE ----- */
+.modal-content {
+	border-radius: 0;
+	border: none;
+}
+
+.modal-header {
+	border-bottom-color: #EEEEEE;
+	background-color: #FAFAFA;
+}
+

@@ -1,0 +1,42 @@
+<doctype html>
+
+<html>
+	<head>
+		<title>{{selected.name}} Details</title>
+		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css">
+		<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"></script>
+	</head>
+
+	<body>
+		<div class="jumbotron">
+			<div style="width:10%; padding-left: 10px;">
+				<button type="button" class="btn btn-primary" onclick="window.location.href='/chemicals';">Back</button>
+			</div>
+		  <h1 class="display-4" align="center">{{selected.name}}</h1>
+		  <p class="lead" align="center">{{selected.goal}}</p>
+		  <hr class="my-4">
+		</div>
+
+		<div class="container" align="left">
+		  <h2>Alternate Name: {{selected.alternate_name}}</h2>
+		  <h2>Vendor: {{selected.vendor}}</h2>
+		  <h2>CAS: {{selected.CAS}}</h2>
+		  <h2>Description: {{selected.description}}</h2>
+		  <h2>Hazard Note: {{selected.hazard_note}}</h2>
+		  <h2>GHS Pictograms: </h2>
+		  <h2>Bulding: {{selected.building_location}}</h2>
+		  <h2>Room: {{selected.room_location}}</h2>
+		  <h2>Cabinet: {{selected.cabinet_location}}</h2>
+		  <h2>Shelf: {{selected.shelf_location}}</h2>
+		  <h2>Formulations containing {{selected.name}}:</h2>
+		  <ul>
+			  {% for formula in selected.formulas.all() %}
+			  	<li>{{formula}}</li>
+			  {% endfor %}
+		  </ul>
+	    </div>
+	</body>
+</html>

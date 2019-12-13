@@ -8,15 +8,49 @@
 		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
 		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"></script>
+	  	<link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+	  	<script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+	  	<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
 	</head>
 
 	<body>
-		<h1 align="center">Chemical Inventory</h1>
+		<script>
+    		if ( window.history.replaceState ) {
+        		window.history.replaceState( null, null, window.location.href );
+    		}
+		</script>
+
+		<div style="display:flex; justify-content:flex-start; width:100%; padding-top: 65px; padding-left: 40px;">
+			<button type="button" class="btn btn-primary" onclick="window.location.href='/';">Home</button>
+		</div>
+
+		<h1 class="display-4" align="center">Chemical Inventory</h1>
+
+ 		<div class="container" align="center" style="display:flex; justify-content:flex-start; width:100%; padding-top: 10px">
+		   {% from "formhelpers.html" import render_field %}
+			<form method="POST" action="/chemicals">
+<!-- 				<script>
+					$(function(allTags) {
+						$("#input").autocomplete({
+							source: allTags,
+							minLength: 2,
+						});
+					});
+				</script>
+ -->
+				<div class="ui-widget">
+				  {{ searchForm.csrf_token }}
+	 			  {{ render_field(searchForm.search(placeholder="Search...")) }}
+				  <input id="input" type="submit" name="button" style="display: none;">
+				</div>
+	 			
+	 		</form>
+		</div>
 
 		<div class="container" align="center">
-		<!-- add button, triggers popup -->
-		<div style="display:flex; justify-content:flex-start; width:100%;">
-			<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModalLong">+</button>
+		<!-- add button, striggers popup -->
+		<div style="display:flex; justify-content:flex-start; width:100%; padding-bottom: 20px;">
+			<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModalLong">Add</button>
 		</div>
 		</div>
 
@@ -88,30 +122,6 @@
 		  </div>
 		</div>
 
- 		<div class="container" align="center" style="display:flex; justify-content:flex-start; width:100%; padding-top: 10px">
-		{% from "formhelpers.html" import render_field %}
-			<form method="POST" action="/chemicals">
-	<!-- 			<script>
-					$(document).ready(function() {
-						$("#input").on("keyup", function() {
-							var val = $(this).val().toLowerCase();
-							$("#table").filter(function() {
-								$(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
-							});
-						});
-					});
-					// 	var availableTags = allTags
-					// 	// var availableTags = {{allTags|tojson|safe}};
-					// 	$("#tags").autocomplete({source: allTags});
-					// });
-				</script> -->
-
-				{{ searchForm.csrf_token }}
-	 			{{ render_field(searchForm.search(placeholder="Search...")) }}
-	 			<input id="input" type="submit" name="button" style="display: none;">
-	 		</form>
-		</div>
-
 		<div class="container" align="center">
 		  <h2 align="left">All Chemicals</h2>
 		  <div class="row">
@@ -119,6 +129,7 @@
 				<table class="table table-striped">
 			      <thead>
 			        <tr>
+			          <th class="hidden">ID</th>
 			          <th>Name</th>
 			          <th>Vendor</th>
 			          <th>CAS Number</th>
@@ -127,7 +138,8 @@
 			      </thead>
 			      <tbody id="bootstrap-override">
 			        {% for chemical in chemicals %}
-			        <tr class="clickable" onclick="window.location.href='{{url_for('more_info')}}';">
+			        <tr id="chemical_row" class="clickable" data-toggle="modal" data-target="#myModal">
+			          <td class="hidden">{{ chemical.id }}</td>
 			          <td>{{ chemical.name }}</td>
 			          <td>{{ chemical.vendor }}</td>
 			          <td>{{ chemical.CAS }}</td>
@@ -136,8 +148,50 @@
 			        {% endfor %}
 			      </tbody>
 			    </table>
+
+		<script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+		<script type="text/javascript">
+			$(function(){
+				$('tr#chemical_row.clickable').click(function(event) {
+					var chem_id = event.target.parentNode.cells.item(0).innerText;
+					if (chem_id) {
+        				window.location = '/chemical_details?id=' + chem_id;
+    				}
+				});
+			});
+		</script>
+
+<!-- 		<div class="modal right fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+			<div class="modal-dialog" role="document">
+				<div class="modal-content"> -->
+					<!-- <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script> -->
+					<!-- <script type="text/javascript"> -->
+<!-- 						$(function(){
+							$('tr#chemical_row.clickable').click(function(event) {
+								$.getJSON('/more_info', function(data) { });
+								return false;
+							});
+						});
+
+						// 	$('tr#chemical_row.clickable').click(function(event) {
+						// 		// get ID of row element
+						// 		chemical_id = event.target.parentNode.cells.item(0).innerText;
+						// 		chemical_name = event.target.parentNode.cells.item(1).innerText;
+
+						// 		// set Modal popup title to chemical name
+						// 		$("h5#myModalLabel.modal-title").html(chemical_name)
+						// 	});
+						// }); -->
+					<!-- </script> -->
+<!-- 					<div class="modal-header">
+						<h5 class="modal-title" id="myModalLabel">More Info</h5>
+						<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+					</div>
+					<div id="more_info" class="modal-body">
+					</div>
+				</div>
 			</div>
-		  </div>
-	    </div>
+		</div> -->
+
 	</body>
 </html>
