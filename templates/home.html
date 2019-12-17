@@ -15,7 +15,121 @@
     
     <div style="width:20%; padding-left: 20px; padding-top: 20px" align="left" id="my-signin2"></div>
     <h1 class="display-4" align="center">Materials Hub</h1>
-      <script>
+
+    <!--Add buttons to initiate auth sequence and sign out-->
+    <button id="authorize_button" class="btn btn-primary" style="display: none;">Authorize</button>
+    <button id="signout_button" class="btn btn-primary" style="display: none;">Sign Out</button>
+
+    <pre id="content" style="white-space: pre-wrap;"></pre>
+
+    <script type="text/javascript">
+      // Client ID and API key from the Developer Console
+      var CLIENT_ID = '1002892121710-4c4m6qq28atl0laecupbreg2t2qgsqus.apps.googleusercontent.com';
+      var API_KEY = 'AIzaSyCmZK3DqFhld1RKH345m778oktNkBMjglo';
+
+      // Array of API discovery doc URLs for APIs used by the quickstart
+      var DISCOVERY_DOCS = ["https://www.googleapis.com/discovery/v1/apis/drive/v3/rest"];
+
+      // Authorization scopes required by the API; multiple scopes can be
+      // included, separated by spaces.
+      var SCOPES = 'https://www.googleapis.com/auth/drive https://www.googleapis.com/auth/spreadsheets';
+
+      var authorizeButton = document.getElementById('authorize_button');
+      var signoutButton = document.getElementById('signout_button');
+
+      /**
+       *  On load, called to load the auth2 library and API client library.
+       */
+      function handleClientLoad() {
+        gapi.load('client:auth2', initClient);
+      }
+
+      /**
+       *  Initializes the API client library and sets up sign-in state
+       *  listeners.
+       */
+      function initClient() {
+        gapi.client.init({
+          apiKey: API_KEY,
+          clientId: CLIENT_ID,
+          discoveryDocs: DISCOVERY_DOCS,
+          scope: SCOPES
+        }).then(function () {
+          // Listen for sign-in state changes.
+          gapi.auth2.getAuthInstance().isSignedIn.listen(updateSigninStatus);
+
+          // Handle the initial sign-in state.
+          updateSigninStatus(gapi.auth2.getAuthInstance().isSignedIn.get());
+          authorizeButton.onclick = handleAuthClick;
+          signoutButton.onclick = handleSignoutClick;
+        }, function(error) {
+          appendPre(JSON.stringify(error, null, 2));
+        });
+      }
+
+      /**
+       *  Called when the signed in status changes, to update the UI
+       *  appropriately. After a sign-in, the API is called.
+       */
+      function updateSigninStatus(isSignedIn) {
+        if (isSignedIn) {
+          authorizeButton.style.display = 'none';
+          signoutButton.style.display = 'block';
+        } else {
+          authorizeButton.style.display = 'block';
+          signoutButton.style.display = 'none';
+        }
+      }
+
+      /**
+       *  Sign in the user upon button click.
+       */
+      function handleAuthClick(event) {
+        gapi.auth2.getAuthInstance().signIn();
+      }
+
+      /**
+       *  Sign out the user upon button click.
+       */
+      function handleSignoutClick(event) {
+        gapi.auth2.getAuthInstance().signOut();
+      }
+
+      /**
+       * Append a pre element to the body containing the given message
+       * as its text node. Used to display the results of the API call.
+       *
+       * @param {string} message Text to be placed in pre element.
+       */
+      function appendPre(message) {
+        var pre = document.getElementById('content');
+        var textContent = document.createTextNode(message + '\n');
+        pre.appendChild(textContent);
+      }
+
+      // function createSheet() {
+      //   gapi.client.drive.files.create({
+      //       'resource' : {
+      //           'mimeType': 'application/vnd.google-apps.spreadsheet',
+      //           'name': 'test'
+      //       }
+      //   }).then(function(response) {
+      //       sheet_id = response.result.id;
+      //       window.location = '/?sheet_id=' + sheet_id;
+      //   });
+      // }
+
+    </script>
+
+    <script async defer src="https://apis.google.com/js/api.js"
+      onload="this.onload=function(){};handleClientLoad()"
+      onreadystatechange="if (this.readyState === 'complete') this.onload()">
+    </script>
+
+
+
+
+<!--       <script>
         function onSuccess(googleUser) {
           console.log('Logged in as: ' + googleUser.getBasicProfile().getName());
           var id_token = googleUser.getAuthResponse().id_token;
@@ -47,7 +161,7 @@
         }
       </script>
 
-      <script src="https://apis.google.com/js/platform.js?onload=renderButton" async defer></script>
+      <script src="https://apis.google.com/js/platform.js?onload=renderButton" async defer></script> -->
 
     <div class="container" align="center">
         <button type="button" class="btn btn-primary" onclick="window.location.href='{{url_for('chemical_inventory')}}';">Chemical Inventory

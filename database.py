@@ -4,8 +4,9 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 # from flask_script import Manager
 from flask_wtf import FlaskForm
-from wtforms import StringField, SelectField, BooleanField
-from wtforms.validators import DataRequired
+from wtforms import StringField, SelectField, BooleanField, IntegerField
+from wtforms.ext.sqlalchemy.fields import QuerySelectField
+from wtforms.validators import DataRequired, Optional
 from sqlalchemy.orm import relationship
 from sqlalchemy import create_engine
 import os
@@ -60,6 +61,9 @@ class Chemical(db.Model):
 	cabinet_location = db.Column(db.String(200), nullable=True)
 	shelf_location = db.Column(db.String(200), nullable=True)
 
+	def __repr__(self):
+		return self.name
+
 	# lot_number = db.Column(db.String(200), nullable=True)
 	# disposal_note = db.Column(db.String(200), nullable=True)
 	# owner = db.Column(db.String(200), nullable=True)
@@ -87,9 +91,13 @@ class Project(db.Model):
 	name = db.Column(db.String(200), nullable=False)
 	project_lead = db.Column(db.String(200), nullable=True)
 	goal = db.Column(db.String(200), nullable=True)
-	date_started = db.Column(db.String(200), nullable=True) #TODO: what format? how can we force the format?
+	date_started = db.Column(db.String(200), nullable=True) #TODO: datetime format
+	sheet_ID = db.Column(db.String(200), nullable=True)
 	formulations = db.relationship('Formulation', backref='id', lazy='dynamic')
-	# sheet_URL = db.Column(db.String(200), nullable=True)
+
+	def __repr__(self):
+		return self.name
+
 	# business_unit = db.Column(db.String(200), nullable=True)
 	# other_members = db.Column(db.String(200), nullable=True) #TODO: this should be a list
 	# product_contact = db.Column(db.String(200), nullable=True)
@@ -165,6 +173,14 @@ class addChemical(FlaskForm):
 class searchForm(FlaskForm):
 	id = db.Column(db.Integer, primary_key=True)
 	search = StringField('')
+
+def chemical_query(): return Chemical.query
+
+class refineSearchForm(FlaskForm):
+	id = db.Column(db.Integer, primary_key=True)
+	ingredient = QuerySelectField(query_factory = chemical_query, allow_blank=True)
+	volume_filler = IntegerField('% volume of filler ', validators = [Optional()])
+
 
 # if __name__ == '__main__':
 # 	manager.run()

@@ -1,7 +1,6 @@
 __pycache__
-tutorial-env
+venv
 .env
 old
 credentials.json
-client_secret.json
 token.pickle

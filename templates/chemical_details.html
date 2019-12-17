@@ -21,17 +21,23 @@
 		</div>
 
 		<div class="container" align="left">
-		  <h2>Alternate Name: {{selected.alternate_name}}</h2>
-		  <h2>Vendor: {{selected.vendor}}</h2>
-		  <h2>CAS: {{selected.CAS}}</h2>
-		  <h2>Description: {{selected.description}}</h2>
-		  <h2>Hazard Note: {{selected.hazard_note}}</h2>
-		  <h2>GHS Pictograms: </h2>
-		  <h2>Bulding: {{selected.building_location}}</h2>
-		  <h2>Room: {{selected.room_location}}</h2>
-		  <h2>Cabinet: {{selected.cabinet_location}}</h2>
-		  <h2>Shelf: {{selected.shelf_location}}</h2>
-		  <h2>Formulations containing {{selected.name}}:</h2>
+		  <p>Alternate Name: {{selected.alternate_name}}</p>
+		  <p>Vendor: {{selected.vendor}}</p>
+		  <p>CAS: {{selected.CAS}}</p>
+		  <p>Description: {{selected.description}}</p>
+		  <p>Hazard Note: {{selected.hazard_note}}</p>
+		  <p>GHS Hazards: </p>
+		  	<ul>
+		  		<li>Flammable: {{selected.GHS_flammable}}</li>
+		  		<li>Explosive: {{selected.GHS_explosive}}</li>
+		  		<li>Health Hazard: {{selected.GHS_health_hazard}}</li>
+		  		<li>Irritant: {{selected.GHS_irritant}}</li>
+		  	</ul>
+		  <p>Bulding: {{selected.building_location}}</p>
+		  <p>Room: {{selected.room_location}}</p>
+		  <p>Cabinet: {{selected.cabinet_location}}</p>
+		  <p>Shelf: {{selected.shelf_location}}</p>
+		  <p>Formulations containing {{selected.name}}:</p>
 		  <ul>
 			  {% for formula in selected.formulas.all() %}
 			  	<li>{{formula}}</li>

@@ -10,33 +10,42 @@ from oauth2client.service_account import ServiceAccountCredentials
 from google.oauth2 import id_token
 from google.auth.transport import requests
 from httplib2 import Http
-from database import db, app, Chemical, addChemical, displayChemicals, searchForm, Project, addProject, displayFormulas, Formulation, Results
+from database import db, app, Chemical, addChemical, displayChemicals, \
+                     searchForm, Project, addProject, displayFormulas, \
+                     Formulation, Results, refineSearchForm
 from flask import render_template, request, redirect
 import os
 from sqlalchemy import func
 from flask import jsonify
 from flask_cors import cross_origin
-
-# import oauth2client
-# from oauth2client import file, client, tools
-# from google_auth_oauthlib.flow import InstalledAppFlow
-# from google.auth.transport.requests import Request
-# from wtforms.ext.sqlalchemy.fields import QuerySelectField
-# import gspread
+from google_auth_oauthlib.flow import InstalledAppFlow
+from google.auth.transport.requests import Request
+import gspread
+from sqlalchemy import and_
 
 # Scopes for Google Drive and Google Sheets APIs
 SCOPES = ['https://www.googleapis.com/auth/drive',
       'https://www.googleapis.com/auth/spreadsheets']
 
-CLIENT_SECRETS_FILE = "client_secret.json"
+CLIENT_SECRETS_FILE = "credentials.json"
 
 API_SERVICE_NAME = 'drive'
 API_VERSION = 'v3'
+
+RESULTS = [{'userEnteredValue': 'Thoughts'}, 
+           {'userEnteredValue':'A/MA'}, 
+           {'userEnteredValue':'Composition/Notes'}, 
+           {'userEnteredValue':'Percent volume of filler'}, 
+           {'userEnteredValue':'Percent weight of filler'}]
 
 @app.route('/', methods=['GET', 'POST'])
 def home():
     # create database
     db.create_all()
+
+    # if 'sheet_id' in request.args:
+    #     sheet_id = request.args.get('sheet_id')
+    #     create_sheet(sheet_id)
 
     return render_template("home.html")
 
@@ -61,7 +70,7 @@ def chemical_inventory():
                 results = Chemical.query.filter(Chemical.name.ilike('%' + str(selection) + '%'))
                 return render_template("chemical_db.html", form=form, allTags=tags, searchForm=search, chemicals=results)
 
-    # # get all chemicals to display in table format, order by name
+    # get all chemicals to display in table format, order by name
     all_chemicals = Chemical.query.order_by(Chemical.name).all()
 
     # render the form and all chemicals
@@ -149,6 +158,16 @@ def formulation_database():
     # form for searching projects in database
     search = searchForm(request.form)
 
+    # refine search if there are query parameters
+    refine = refineSearchForm(request.form)
+
+    # bool to set active navigation tab to projects
+    nav_tab = True
+
+    # get all project names
+    proj_results = Project.query.order_by(Project.name).all()
+    formula_results = Formulation.query.order_by(Formulation.name).all()
+
     # validate form
     if request.method == 'POST':
         if request.form['button'] == 'Add':
@@ -168,22 +187,42 @@ def formulation_database():
             db.session.add(newProject)
             db.session.commit()
 
-            # create_sheet(newProject.name)
+            create_sheet(newProject.name)
+
+            # get all project names
+            proj_results = Project.query.order_by(Project.name).all()
+            formula_results = Formulation.query.order_by(Formulation.name).all()
 
         else:
             selection = search.data['search']
+            ingredient = refine.data['ingredient']
+            percent = refine.data['volume_filler']
+
             if selection != '':
-                results = Project.query.join(Formulation, Project.formulations)\
-                                .filter( (Project.name.ilike('%' + str(selection) + '%')) |\
-                                (Formulation.name.ilike('%' + str(selection) + '%')))
+                proj_results = Project.query.filter(Project.name.ilike('%' + str(selection) + '%'))
+                formula_results = Formulation.query.filter(Formulation.name.ilike('%' + str(selection) + '%'))
 
-                return render_template("formulation_db.html", form=form, projects=results, searchForm=search)
+                nav_tab = True
 
-    # get all projects to display in table format
+            else: 
+                if ingredient != None and percent != None:
+                    formula_results = Formulation.query.join(Chemical, Formulation.chemicals).join(Results, Formulation.results)\
+                                        .filter(Chemical.name == ingredient.name).filter(Results.filler_vol_percent == percent)
+                elif ingredient != None or percent != None:
+                    if ingredient != None: 
+                        formula_results = Formulation.query.join(Chemical, Formulation.chemicals)\
+                                            .filter(Chemical.name == ingredient.name)
+                    elif percent != None:
+                        formula_results = Formulation.query.join(Results, Formulation.results)\
+                                            .filter(Results.filler_vol_percent == percent)
+
+                nav_tab = False
+
     all_projects = Project.query.order_by(Project.name).all()
 
     # render the form and all projects
-    return render_template("formulation_db.html", form=form, projects=all_projects, searchForm=search)
+    return render_template("formulation_db.html", form=form, searchForm=search, refineSearch=refine, projects=proj_results, \
+                                formulas=formula_results, proj_tab=nav_tab, all_projects=all_projects)
 
 # TODO: loop through spreadsheet data once i get that working
 def populate_formulations(project):
@@ -196,27 +235,27 @@ def populate_formulations(project):
         thoughts = 'just a thought',
         A_MA = 'A/MA',
         composition_notes = 'none',
-        filler_vol_percent = 23,
-        filler_weight_percent = 31
-    )
-
-    sample_results_2 = Results(
-        thoughts = 'another thought',
-        A_MA = 'A',
-        composition_notes = 'none',
-        filler_vol_percent = 27,
+        filler_vol_percent = 45,
         filler_weight_percent = 30
     )
 
-    newFormula1 = Formulation(name='H30f0')
+    sample_results_2 = Results(
+        thoughts = 'thoughts go here',
+        A_MA = 'MA',
+        composition_notes = 'none',
+        filler_vol_percent = 50,
+        filler_weight_percent = 50
+    )
+
+    newFormula1 = Formulation(name='HF030_f')
     for chemical in everybody:
         newFormula1.chemicals.append(chemical)
-    # newFormula1.results.append(sample_results_1)
+    newFormula1.results = sample_results_1
     project.formulations.append(newFormula1)
 
-    newFormula2 = Formulation(name='HFm006_f55')
+    newFormula2 = Formulation(name='HF040')
     newFormula2.chemicals.append(one)
-    # newFormula2.results.append(sample_results_2)
+    newFormula2.results = sample_results_2
     project.formulations.append(newFormula2)
 
 @app.route('/project_details', methods=['GET', 'POST'])
@@ -224,20 +263,23 @@ def project_details():
     # get project id from query parameter
     project_id = request.args.get('id', default = -1, type=int)
 
+    # get formula id from query parameter if it exists
+    formula_name = ''
+    if 'formula' in request.args:
+        formula_name = request.args.get('formula', default = '', type=str)
+
     # get project with the current project ID
     currentProject = Project.query.filter(Project.id==project_id).first()
 
     # pass the current project to the project_details page
-    return render_template("project_details.html", selected=currentProject)
+    return render_template("project_details.html", selected=currentProject, formula=formula_name)
 
 @app.route('/authenticate', methods=['GET', 'POST'])
 @cross_origin(origin='localhost',headers=['Content- Type','Authorization'])
 def authenticate():
-    print("here!", flush=True)
+    print("authenticating...", flush=True)
     # get token id from POST
     token_id = request.args.get('idtoken', default = -1, type=int)
-
-    print(token_id, flush=True)
 
     return render_template("home.html")
 
@@ -315,45 +357,153 @@ def credentials_to_dict(credentials):
           'client_secret': credentials.client_secret,
           'scopes': credentials.scopes}
 
-def create_sheet(projectName):
-    creds = ServiceAccountCredentials.from_json_keyfile_name('client_secret.json', SCOPES)
-
-    service = build('drive', 'v4', credentials=creds, http=creds.authorize(Http()))
+def create_sheet(projName):
+    creds = google.oauth2.credentials.Credentials(**flask.session['credentials'])
+    service = build('drive', 'v3', credentials=creds)
     sheets = build('sheets', 'v4', credentials=creds)
 
     body = {
         'mimeType': 'application/vnd.google-apps.spreadsheet',
-        'name': projectName,
-        'supportsAllDrives': True,
-        'driveId': '0ADcJ0eHZoAh4Uk9PVA',
+        'name': projName,
     }
 
     file = service.files().create(body=body).execute()
     sheet_id = file.get('id')
 
-    # # print(list)
+    data = sheet_template()
 
-    # data = {'requests': [
-    #     {'setDataValidation': {
-    #     'range': {
-    #         'startRowIndex': 0,
-    #         'endRowIndex': 1,
-    #         'startColumnIndex': 0,
-    #         'endColumnIndex': 1
-    #     },
-    #     'rule': {
-    #         'condition': {
-    #             'type': 'ONE_OF_LIST',
-    #                 'values': [
-    #                     {'userEnteredValue': 'one'},
-    #                     {'userEnteredValue': 'two'},
-    #                     {'userEnteredValue': 'three'},
-    #                 ]
-    #         },
-    #         'strict': True
-    #     }}}]}
+    update = sheets.spreadsheets().batchUpdate(spreadsheetId=sheet_id, body=data).execute()
 
-    # update = sheets.spreadsheets().batchUpdate(spreadsheetId=sheet_id, body=data).execute()
+    values = [["Results"]]
+    body = {"values" : values}
+    update = sheets.spreadsheets().values().update(spreadsheetId=sheet_id, range="Sheet1!A1", valueInputOption="USER_ENTERED", body=body).execute()
+
+    values = [["Ingredients"]]
+    body = {"values" : values}
+    update = sheets.spreadsheets().values().update(spreadsheetId=sheet_id, range="Sheet1!A7", valueInputOption="USER_ENTERED", body=body).execute()
+
+    return sheet_id
+
+def sheet_template():
+    chemicals = [chemical.name for chemical in Chemical.query.order_by(Chemical.name).all()]
+
+    # get all chemical names from database to populate dropdown
+    chemical_names = []
+    for c in range(len(chemicals)):
+        current = chemicals[c]
+        chemical_names.append({'userEnteredValue' : current})
+
+    data = {"requests": [
+            {"repeatCell": {
+                "range": {
+                  "startColumnIndex": 0,
+                  "endColumnIndex": 1
+                },
+                "cell": {
+                  "userEnteredFormat": {
+                    "backgroundColor": {
+                      "red": 0.9,
+                      "green": 0.9,
+                      "blue": 0.9
+                    },
+                    "horizontalAlignment" : "LEFT",
+                    "textFormat": {
+                      "foregroundColor": {
+                        "red": 0,
+                        "green": 0,
+                        "blue": 0
+                      },
+                      "fontSize": 10,
+                      "bold": False
+                    }
+                  }
+                },
+                "fields": "userEnteredFormat(backgroundColor,textFormat,horizontalAlignment)" 
+                }
+            }, {"repeatCell": {
+                "range": {
+                  "startRowIndex": 0,
+                  "endRowIndex": 1
+                },
+                "cell": {
+                  "userEnteredFormat": {
+                    "backgroundColor": {
+                      "red": 0.9,
+                      "green": 0.9,
+                      "blue": 0.9
+                    },
+                    "horizontalAlignment" : "LEFT",
+                    "textFormat": {
+                      "foregroundColor": {
+                        "red": 0,
+                        "green": 0,
+                        "blue": 0
+                      },
+                      "fontSize": 10,
+                      "bold": True
+                    }
+                  }
+                },
+                "fields": "userEnteredFormat(backgroundColor,textFormat,horizontalAlignment)"
+              }
+        }, {"repeatCell": {
+                "range": {
+                  "startRowIndex": 6,
+                  "endRowIndex": 7
+                },
+                "cell": {
+                  "userEnteredFormat": {
+                    "backgroundColor": {
+                      "red": 0.9,
+                      "green": 0.9,
+                      "blue": 0.9
+                    },
+                    "horizontalAlignment" : "LEFT",
+                    "textFormat": {
+                      "foregroundColor": {
+                        "red": 0,
+                        "green": 0,
+                        "blue": 0
+                      },
+                      "fontSize": 10,
+                      "bold": True
+                    }
+                  }
+                },
+                "fields": "userEnteredFormat(backgroundColor,textFormat,horizontalAlignment)"
+              }
+        }, {'setDataValidation': {
+            'range': {
+                'startRowIndex': 7,
+                'endRowIndex': 11,
+                'startColumnIndex': 0,
+                'endColumnIndex': 1
+            },
+            'rule': {
+                'condition': {
+                    'type': 'ONE_OF_LIST',
+                        'values': chemical_names
+                },
+                'strict': True
+            }}
+        }, {'setDataValidation': {
+            'range': {
+                'startRowIndex': 1,
+                'endRowIndex': 5,
+                'startColumnIndex': 0,
+                'endColumnIndex': 1
+            },
+            'rule': {
+                'condition': {
+                    'type': 'ONE_OF_LIST',
+                        'values': RESULTS
+                },
+                'strict': True
+            }}
+        }
+       ]} 
+
+    return data
 
 if __name__ == '__main__':
     os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'

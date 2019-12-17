@@ -42,11 +42,23 @@
 	      			<li>{{chemical.name}}</li>
 	      		</ul>
 	      	{% endfor %}
+	      	<h2>Properties:</h2>
+	      		<ul>
+	      			<li>Filler volume percent: {{formula.results.filler_vol_percent}}</li>
+	      			<li>Filler volume weight: {{formula.results.filler_weight_percent}}</li>
+	      		</ul>
 	      </div>
 	    </div>
 	  </div>
 	  {% endfor %}
 	</div>
+
+	<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js">
+		$( window ).on( "load", function() {
+			console.log('made it')
+			$("#accordion").accordion("option", "active", 0);
+		});
+	</script>
 
 	</body>
 </html>

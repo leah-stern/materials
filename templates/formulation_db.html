@@ -21,7 +21,7 @@
 			<button type="button" class="btn btn-primary" onclick="window.location.href='/';">Home</button>
 		</div>
 
-		<h1 class="display-4" align="center">Formulation Database</h1>
+		<h1 class="display-4" align="center" style="padding-bottom: 20px;">Formulation Database</h1>
 
 		<div class="container" align="center" style="display:flex; justify-content:flex-start; width:100%; padding-top: 10px">
 		   	{% from "formhelpers.html" import render_field %}
@@ -30,40 +30,10 @@
 	 	   		{{ render_field(searchForm.search(placeholder="Search by name...")) }}
 	 	   		<input type="submit" class="btn btn-secondary" name="button" value="Search" style="display: none;">
 			</form>
-	 	</div>
-
-		<div class="container" align="center" style="display:flex; justify-content:flex-start; width:100%; padding-bottom: 20px">
-			<button class="btn btn-primary" type="button" data-toggle="collapse" data-target="#collapse1" aria-expanded="false" aria-controls="collapse1">Refine Search</button>
-			<div class="collapse" id="collapse1">
-				<div class="card card-body">
-					<div class="d-flex justify-content-center my-4" align="center" style="width:100%;">
-					  <span class="font-weight-bold indigo-text mr-2 mt-1">0</span>
-					  <form class="range-field w-25">
-					    <input class="border-0" type="range" min="0" max="100" id="slider" value="13"/>
-					  </form>
-					  <span class="font-weight-bold indigo-text ml-2 mt-1">100</span>
-					</div>
-
-					<script>
-						$(function() {
-							slider = document.getElementById("slider");
-							slider.oninput = function() {
-								console.log(slider.value);
-								val = slider.value;
-								window.location = '/formulations?vol_filler=' + val;
-							}
-						});
-					</script>
-				</div>
+			<div style="display:flex; justify-content:flex-end; width:100%; padding-bottom: 20px; padding-right: 20px;">
+				<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModalLong">New Project</button>
 			</div>
-		</div>
-
-		<div class="container" align="center">
-		<!-- add button, striggers popup -->
-		<div style="display:flex; justify-content:flex-start; width:100%; padding-bottom: 20px;">
-			<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModalLong">Add</button>
-		</div>
-		</div>
+	 	</div>
 
 		<!-- popup -->
 		<div class="modal fade" id="exampleModalLong" tabindex="-1" role="dialog" aria-labelledby="exampleModalLongTitle" aria-hidden="true">
@@ -91,17 +61,17 @@
 		  </div>
 		</div>
 
-		<div class="container" align="left">
+	 	<div class="container" align="left">		
 			<ul class="nav nav-tabs">
 			  <li class="nav-item">
-			    <a class="nav-link active" href="#Projects" data-toggle="tab">Project View</a>
+			    <a {% if proj_tab == True %} class="nav-link active" {% else %} class="nav-link" {% endif %} href="#Projects" data-toggle="tab" id="project_tab">Project View</a>
 			  </li>
 			  <li class="nav-item">
-			    <a class="nav-link" href="#Formulations" data-toggle="tab">Formulation View</a>
+			    <a {% if proj_tab == False %} class="nav-link active" {% else %} class="nav-link" {% endif %} href="#Formulations" data-toggle="tab" id="formulation+">Formulation View</a>
 			  </li>
 			</ul>
 			<div class="tab-content">
-    			<div id="Projects" class="tab-pane active in">
+    			<div id="Projects" {% if proj_tab == True %} class="tab-pane active in" {% else %} class="tab-pane" {% endif %}>
 				  <div class="row">
 				    <div class="col-sm">
 						<table class="table table-striped" id="owned_stock_table">
@@ -127,7 +97,25 @@
 				  </div>
 			    </div>
 
-			    <div id="Formulations" class="tab-pane fade">
+			    <div id="Formulations" {% if proj_tab == False %} class="tab-pane active in" {% else %} class="tab-pane" {% endif %}>
+			    	<div class="container" align="center" style="display:flex; justify-content:flex-start; width:100%; padding-top: 20px; padding-bottom: 20px;">
+			    		<button class="btn btn-primary" type="button" data-toggle="collapse" data-target="#collapse1" aria-expanded="false" aria-controls="collapse1">Refine Search</button>
+			    	</div>
+
+					<div class="collapse" id="collapse1">
+						<div class="card card-body">
+							<div class="container" align="center" style="width:100%; padding-top: 10px">
+							   	{% from "formhelpers.html" import render_field %}
+							   	<form method="POST" id="refine" action="/formulations">
+							   		{{ refineSearch.csrf_token }}
+						 	   		<b>{{ render_field(refineSearch.ingredient) }}</b>
+						 	   		<b>{{ render_field(refineSearch.volume_filler) }}</b>
+						 	   		<input type="submit" class="btn btn-secondary" name="button" value="Search">
+								</form>
+						 	</div>
+						</div>
+					</div>
+
 			      <div class="row">
 				    <div class="col-sm">
 						<table class="table table-striped" id="owned_stock_table">
@@ -138,27 +126,37 @@
 					        </tr>
 					      </thead>
 					      <tbody id="bootstrap-override">
-					      	{% for project in projects %}
-						        {% for formulation in project.formulations.all() %}
-						        <tr id="formulation_row" class="clickable">
-						          <td>{{ formulation.name }}</td>
-						          <td>{{ project.name}}</td>
-						        </tr>
-						        {% endfor %}
-						    {% endfor %}
+					        {% for formulation in formulas %}
+					        <tr id="formulation_row" class="clickable">
+					          <td class="hidden">{{ formulation.project_id }}</td>
+					          <td>{{ formulation.name }}</td>
+					          {% for project in all_projects %}
+					          	{% if project.id == formulation.project_id %}
+			  						<td>{{ project.name }}</td>
+			  					{% endif %}
+			  				  {% endfor %}
+					        </tr>
+					        {% endfor %}
 					      </tbody>
 					    </table>
 					</div>
 				  </div>
 			    </div>
+			</div>
+		</div>
 
 		<script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
 		<script type="text/javascript">
 			$(function(){
-				$('tr#project_row.clickable').click(function(event) {
+				$('tr#project_row.clickable, tr#formulation_row.clickable').click(function(event) {
 					var proj_id = event.target.parentNode.cells.item(0).innerText;
 					if (proj_id) {
-        				window.location = '/project_details?id=' + proj_id;
+						if (event.target.parentNode.id == 'formulation_row') {
+							var formula_name = event.target.parentNode.cells.item(1).innerText;
+							window.location = '/project_details?id=' + proj_id + '&formula=' + formula_name;
+						} else {
+        					window.location = '/project_details?id=' + proj_id;
+        				}
     				}
 				});
 			});

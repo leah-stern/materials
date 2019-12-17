@@ -18,6 +18,10 @@ h2 {
 	padding-top: 10px;
 }
 
+#tab-pane {
+  display: none;
+}
+
 .wrapper {
     display: flex;
     width: 100%;
@@ -36,7 +40,6 @@ h2 {
   margin: auto;
   width: 70%;
   padding: 20px;
-
 }
 
 .table-striped > tbody > tr:nth-child(odd).clickable:hover > td {

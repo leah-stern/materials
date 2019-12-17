@@ -24,34 +24,21 @@
 			<button type="button" class="btn btn-primary" onclick="window.location.href='/';">Home</button>
 		</div>
 
-		<h1 class="display-4" align="center">Chemical Inventory</h1>
+		<h1 class="display-4" align="center" style="padding-bottom: 20px;">Chemical Inventory</h1>
 
  		<div class="container" align="center" style="display:flex; justify-content:flex-start; width:100%; padding-top: 10px">
 		   {% from "formhelpers.html" import render_field %}
 			<form method="POST" action="/chemicals">
-<!-- 				<script>
-					$(function(allTags) {
-						$("#input").autocomplete({
-							source: allTags,
-							minLength: 2,
-						});
-					});
-				</script>
- -->
 				<div class="ui-widget">
 				  {{ searchForm.csrf_token }}
 	 			  {{ render_field(searchForm.search(placeholder="Search...")) }}
 				  <input id="input" type="submit" name="button" style="display: none;">
 				</div>
-	 			
 	 		</form>
-		</div>
 
-		<div class="container" align="center">
-		<!-- add button, striggers popup -->
-		<div style="display:flex; justify-content:flex-start; width:100%; padding-bottom: 20px;">
-			<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModalLong">Add</button>
-		</div>
+	 		<div style="display:flex; justify-content:flex-end; width:100%; padding-bottom: 20px; padding-right: 20px;">
+				<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModalLong">New Chemical</button>
+			</div>
 		</div>
 
 		<!-- popup -->
@@ -133,7 +120,6 @@
 			          <th>Name</th>
 			          <th>Vendor</th>
 			          <th>CAS Number</th>
-			          <th>Room Location</th>
 			        </tr>
 			      </thead>
 			      <tbody id="bootstrap-override">
@@ -143,7 +129,6 @@
 			          <td>{{ chemical.name }}</td>
 			          <td>{{ chemical.vendor }}</td>
 			          <td>{{ chemical.CAS }}</td>
-			          <td>{{ chemical.room_location }}</td>
 			        </tr>
 			        {% endfor %}
 			      </tbody>
@@ -160,38 +145,6 @@
 				});
 			});
 		</script>
-
-<!-- 		<div class="modal right fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
-			<div class="modal-dialog" role="document">
-				<div class="modal-content"> -->
-					<!-- <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script> -->
-					<!-- <script type="text/javascript"> -->
-<!-- 						$(function(){
-							$('tr#chemical_row.clickable').click(function(event) {
-								$.getJSON('/more_info', function(data) { });
-								return false;
-							});
-						});
-
-						// 	$('tr#chemical_row.clickable').click(function(event) {
-						// 		// get ID of row element
-						// 		chemical_id = event.target.parentNode.cells.item(0).innerText;
-						// 		chemical_name = event.target.parentNode.cells.item(1).innerText;
-
-						// 		// set Modal popup title to chemical name
-						// 		$("h5#myModalLabel.modal-title").html(chemical_name)
-						// 	});
-						// }); -->
-					<!-- </script> -->
-<!-- 					<div class="modal-header">
-						<h5 class="modal-title" id="myModalLabel">More Info</h5>
-						<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-					</div>
-					<div id="more_info" class="modal-body">
-					</div>
-				</div>
-			</div>
-		</div> -->
 
 	</body>
 </html>
