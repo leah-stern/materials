@@ -97,7 +97,6 @@
                       <td class="hidden">{{ formulation.project_id }}</td>
                       <td>{{ formulation.name }}</td>
                       <td>
-                        {{formulation.chemicals|length}}
                         {% for chemical in formulation.chemicals %}
                           {{chemical.name}}
                         {% endfor %}
