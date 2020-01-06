@@ -1,150 +1,104 @@
-<doctype html>
+{% extends "db_template.html" %}
 
-<html>
-	<head>
-		<title>Chemical Inventory</title>
-		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css">
-		<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
-		<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
-		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"></script>
-	  	<link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
-	  	<script src="https://code.jquery.com/jquery-1.12.4.js"></script>
-	  	<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
-	</head>
+{% block title %} Chemical Inventory {% endblock %}
+{% block header %} Chemical Inventory {% endblock %}
+{% block add_button %} New Chemical {% endblock %}
+{% block modal_title %} New Chemical {% endblock %}
 
-	<body>
-		<script>
-    		if ( window.history.replaceState ) {
-        		window.history.replaceState( null, null, window.location.href );
-    		}
-		</script>
+{% block search_box %}
+    {% from "formhelpers.html" import render_field %}
+    <form method="POST" action="/chemicals">
+      {{ searchForm.csrf_token }}
+      {{ render_field(searchForm.search(placeholder="Search...")) }}
+      <input id="input" type="submit" name="button" style="display: none;">
+    </form>
+{% endblock %}
 
-		<div style="display:flex; justify-content:flex-start; width:100%; padding-top: 65px; padding-left: 40px;">
-			<button type="button" class="btn btn-primary" onclick="window.location.href='/';">Home</button>
-		</div>
+{% block modal_content %}
+    {% from "formhelpers.html" import render_field %}
+    <form method="POST" action="/chemicals">
+        <p>Chemical Name: <input type="text" name="Name"/></p>
+        <p>Alternate Name: <input type="text" name="Alternate name"/></p>
+        <p>Vendor: <input type="text" name="Vendor"/></p>
+        <p>CAS Number: <input type="number" name="CAS"/></p>
+        <p>Description: <input type="text" name="Description"/></p>
 
-		<h1 class="display-4" align="center" style="padding-bottom: 20px;">Chemical Inventory</h1>
+        <p><button class="btn btn-primary" type="button" data-toggle="collapse" data-target="#collapse1" aria-expanded="false" aria-controls="collapse1">
+            Safety Information
+        </button></p>
 
- 		<div class="container" align="center" style="display:flex; justify-content:flex-start; width:100%; padding-top: 10px">
-		   {% from "formhelpers.html" import render_field %}
-			<form method="POST" action="/chemicals">
-				<div class="ui-widget">
-				  {{ searchForm.csrf_token }}
-	 			  {{ render_field(searchForm.search(placeholder="Search...")) }}
-				  <input id="input" type="submit" name="button" style="display: none;">
-				</div>
-	 		</form>
+        <div class="collapse" id="collapse1">
+            <div class="card card-body">
+                <p>Hazard Note: <input type="text" name="Hazard Note"/></p>
+                <p>GHS Hazards: <br>
+                    <input type="checkbox" name="Flammable">Flammable<br>
+                    <input type="checkbox" name="Explosive">Explosive<br>
+                    <input type="checkbox" name="Health Hazard">Health Hazard<br>
+                    <input type="checkbox" name="Oxidizing">Oxidizing<br>
+                    <input type="checkbox" name="Compressed Gas">Compressed Gas<br>
+                    <input type="checkbox" name="Irritant">Irritant<br>
+                    <input type="checkbox" name="Environment">Environmental Hazard<br>
+                    <input type="checkbox" name="Corrosive">Corrosive<br>
+                    <input type="checkbox" name="Toxic">Toxic<br>
+                </p>
+            </div>
+        </div>
 
-	 		<div style="display:flex; justify-content:flex-end; width:100%; padding-bottom: 20px; padding-right: 20px;">
-				<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModalLong">New Chemical</button>
-			</div>
-		</div>
+        <p><button class="btn btn-primary" type="button" data-toggle="collapse" data-target="#collapse2" aria-expanded="false" aria-controls="collapse2">
+            Location
+        </button></p>
 
-		<!-- popup -->
-		<div class="modal fade" id="exampleModalLong" tabindex="-1" role="dialog" aria-labelledby="exampleModalLongTitle" aria-hidden="true">
-		  <div class="modal-dialog" role="document">
-		    <div class="modal-content">
-		      <div class="modal-header">
-		        <h5 class="modal-title" id="exampleModalLongTitle">New Chemical</h5>
-		        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-		          <span aria-hidden="true">&times;</span>
-		        </button>
-		      </div>
-		      <div class="modal-body">
-		        
-		        <!-- display form in popup -->
-				{% from "formhelpers.html" import render_field %}
-				<form method="POST" action="/chemicals">
-					<p>Chemical Name: <input type="text" name="Name"/></p>
-					<p>Alternate Name: <input type="text" name="Alternate name"/></p>
-					<p>Vendor: <input type="text" name="Vendor"/></p>
-					<p>CAS Number: <input type="text" name="CAS"/></p>
-					<p>Description: <input type="text" name="Description"/></p>
+        <div class="collapse" id="collapse2">
+            <div class="card card-body">
+                <p>Building: <input type="text" name="Building"/></p>
+                <p>Room: <input type="text" name="Room"/></p>
+                <p>Cabinet: <input type="text" name="Cabinet"/></p>
+                <p>Shelf: <input type="text" name="Shelf"/></p>
+            </div>
+        </div>
 
-					<!-- safety information dropdown -->
-					<p>
-						<button class="btn btn-primary" type="button" data-toggle="collapse" data-target="#collapse1" aria-expanded="false" aria-controls="collapse1">
-	    					Safety Information
-	  					</button>
-					</p>
-					<div class="collapse" id="collapse1">
-  						<div class="card card-body">
-  							<p>Hazard Note: <input type="text" name="Hazard Note"/></p>
-							<p>GHS Hazards: <br>
-								<input type="checkbox" name="Flammable">Flammable<br>
-								<input type="checkbox" name="Explosive">Explosive<br>
-								<input type="checkbox" name="Health Hazard">Health Hazard<br>
-								<input type="checkbox" name="Oxidizing">Oxidizing<br>
-								<input type="checkbox" name="Compressed Gas">Compressed Gas<br>
-								<input type="checkbox" name="Irritant">Irritant<br>
-								<input type="checkbox" name="Environment">Environmental Hazard<br>
-								<input type="checkbox" name="Corrosive">Corrosive<br>
-								<input type="checkbox" name="Toxic">Toxic<br>
-							</p>
-  						</div>
-					</div>
+        <div class="modal-footer">
+        <input type="submit" class="btn btn-secondary" name="button" value="Add">
+        </div>
+    </form>
+{% endblock %}
 
-					<!-- location dropdown -->
-					<p>
-						<button class="btn btn-primary" type="button" data-toggle="collapse" data-target="#collapse2" aria-expanded="false" aria-controls="collapse2">
-	    					Location
-	  					</button>
-					</p>
-					<div class="collapse" id="collapse2">
-  						<div class="card card-body">
-  							<p>Building: <input type="text" name="Building"/></p>
-  							<p>Room: <input type="text" name="Room"/></p>
-  							<p>Cabinet: <input type="text" name="Cabinet"/></p>
-  							<p>Shelf: <input type="text" name="Shelf"/></p>
-  						</div>
-					</div>
+{% block display_content %}
+    <h2 align="left">All Chemicals</h2>
+    <div class="row">
+        <div class="col-sm">
+            <table class="table table-striped">
+              <thead>
+                <tr>
+                  <th class="hidden">ID</th>
+                  <th>Name</th>
+                  <th>Vendor</th>
+                  <th>CAS Number</th>
+                </tr>
+              </thead>
+              <tbody id="bootstrap-override">
+                {% for chemical in chemicals %}
+                <tr id="chemical_row" class="clickable" data-toggle="modal" data-target="#myModal">
+                  <td class="hidden">{{ chemical.id }}</td>
+                  <td>{{ chemical.name }}</td>
+                  <td>{{ chemical.vendor }}</td>
+                  <td>{{ chemical.CAS }}</td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>  
+        </div>  
+    </div>
 
-		      </div>
-		      <div class="modal-footer">
-		        <input type="submit" class="btn btn-secondary" name="button" value="Add">
-		      </div>
-		      </form>
-		    </div>
-		  </div>
-		</div>
-
-		<div class="container" align="center">
-		  <h2 align="left">All Chemicals</h2>
-		  <div class="row">
-		    <div class="col-sm">
-				<table class="table table-striped">
-			      <thead>
-			        <tr>
-			          <th class="hidden">ID</th>
-			          <th>Name</th>
-			          <th>Vendor</th>
-			          <th>CAS Number</th>
-			        </tr>
-			      </thead>
-			      <tbody id="bootstrap-override">
-			        {% for chemical in chemicals %}
-			        <tr id="chemical_row" class="clickable" data-toggle="modal" data-target="#myModal">
-			          <td class="hidden">{{ chemical.id }}</td>
-			          <td>{{ chemical.name }}</td>
-			          <td>{{ chemical.vendor }}</td>
-			          <td>{{ chemical.CAS }}</td>
-			        </tr>
-			        {% endfor %}
-			      </tbody>
-			    </table>
-
-		<script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
-		<script type="text/javascript">
-			$(function(){
-				$('tr#chemical_row.clickable').click(function(event) {
-					var chem_id = event.target.parentNode.cells.item(0).innerText;
-					if (chem_id) {
-        				window.location = '/chemical_details?id=' + chem_id;
-    				}
-				});
-			});
-		</script>
-
-	</body>
-</html>
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+    <script type="text/javascript">
+    $(function(){
+        $('tr#chemical_row.clickable').click(function(event) {
+            var chem_id = event.target.parentNode.cells.item(0).innerText;
+            if (chem_id) {
+                window.location = '/chemical_details?id=' + chem_id;
+            }
+        });
+    });
+    </script>
+{% endblock %}

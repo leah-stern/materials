@@ -1,166 +1,130 @@
-<doctype html>
+{% extends "db_template.html" %}
 
-<html>
-	<head>
-		<title>Formulation Database</title>
-		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css">
-		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
-		<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
-		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"></script>
-		<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-	</head>
+{% block title %} Formulation Database {% endblock %}
+{% block header %} Formulation Database {% endblock %}
+{% block add_button %} New Project {% endblock %}
+{% block modal_title %} New Project {% endblock %}
 
-	<body>
-		<script>
-    		if ( window.history.replaceState ) {
-        		window.history.replaceState( null, null, window.location.href );
-    		}
-		</script>
+{% block search_box %}
+    {% from "formhelpers.html" import render_field %}
+    <form method="POST" action="/formulations">
+      {{ searchForm.csrf_token }}
+      {{ render_field(searchForm.search(placeholder="Search by name...")) }}
+      <input id="input" type="submit" name="button" style="display: none;">
+    </form>
+{% endblock %}
 
-		<div style="display:flex; justify-content:flex-start; width:100%; padding-top: 65px; padding-left: 40px;">
-			<button type="button" class="btn btn-primary" onclick="window.location.href='/';">Home</button>
-		</div>
+{% block modal_content %}
+{% from "formhelpers.html" import render_field %}
+<form method="POST" action="/formulations">
+    <p>Name: <input type="text" name="Name"/></p>
+    <p>Project Lead: <input type="text" name="Project Lead"/></p>
+    <p>Goal: <input type="text" name="Goal"/></p>
+    <p>Date Started: <input type="text" name="Date Started"/></p>
+    <div class="modal-footer">
+        <input type="submit" class="btn btn-secondary" name="button" value="Add">
+    </div>
+</form>
+{% endblock %}
 
-		<h1 class="display-4" align="center" style="padding-bottom: 20px;">Formulation Database</h1>
+{% block display_content %}
+    <ul class="nav nav-tabs">
+      <li class="nav-item">
+        <a {% if proj_tab == True %} class="nav-link active" {% else %} class="nav-link" {% endif %} href="#Projects" data-toggle="tab" id="project_tab">Project View</a>
+      </li>
+      <li class="nav-item">
+        <a {% if proj_tab == False %} class="nav-link active" {% else %} class="nav-link" {% endif %} href="#Formulations" data-toggle="tab" id="formulation+">Formulation View</a>
+      </li>
+    </ul>
+    <div class="tab-content">
+        <div id="Projects" {% if proj_tab == True %} class="tab-pane active in" {% else %} class="tab-pane" {% endif %}>
+          <div class="row">
+            <div class="col-sm">
+                <table class="table table-striped" id="owned_stock_table">
+                  <thead>
+                    <tr>
+                      <th>Name</th>
+                      <th>Project Lead</th>
+                      <th>Date Created</th>
+                    </tr>
+                  </thead>
+                  <tbody id="bootstrap-override">
+                    {% for project in projects %}
+                    <tr id="project_row" class="clickable">
+                      <td class="hidden">{{ project.id }}</td>
+                      <td>{{ project.name }}</td>
+                      <td>{{ project.project_lead}}</td>
+                      <td>{{ project.date_started}}</td>
+                    </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+            </div>
+          </div>
+        </div>
 
-		<div class="container" align="center" style="display:flex; justify-content:flex-start; width:100%; padding-top: 10px">
-		   	{% from "formhelpers.html" import render_field %}
-		   	<form method="POST" action="/formulations">
-		   		{{ searchForm.csrf_token }}
-	 	   		{{ render_field(searchForm.search(placeholder="Search by name...")) }}
-	 	   		<input type="submit" class="btn btn-secondary" name="button" value="Search" style="display: none;">
-			</form>
-			<div style="display:flex; justify-content:flex-end; width:100%; padding-bottom: 20px; padding-right: 20px;">
-				<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModalLong">New Project</button>
-			</div>
-	 	</div>
+        <div id="Formulations" {% if proj_tab == False %} class="tab-pane active in" {% else %} class="tab-pane" {% endif %}>
+            <div class="container" align="center" style="display:flex; justify-content:flex-start; width:100%; padding-top: 20px; padding-bottom: 20px;">
+                <button class="btn btn-primary" type="button" data-toggle="collapse" data-target="#collapse1" aria-expanded="false" aria-controls="collapse1">Refine Search</button>
+            </div>
 
-		<!-- popup -->
-		<div class="modal fade" id="exampleModalLong" tabindex="-1" role="dialog" aria-labelledby="exampleModalLongTitle" aria-hidden="true">
-		  <div class="modal-dialog" role="document">
-		    <div class="modal-content">
-		      <div class="modal-header">
-		        <h5 class="modal-title" id="exampleModalLongTitle">New Project</h5>
-		        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-		          <span aria-hidden="true">&times;</span>
-		        </button>
-		      </div>
-		      <div class="modal-body">
-			    {% from "formhelpers.html" import render_field %}
-				<form method="POST" action="/formulations">
-					<p>Name: <input type="text" name="Name"/></p>
-					<p>Project Lead: <input type="text" name="Project Lead"/></p>
-					<p>Goal: <input type="text" name="Goal"/></p>
-					<p>Date Started: <input type="text" name="Date Started"/></p>
-				  	<div class="modal-footer">
-			        	<input type="submit" class="btn btn-secondary" name="button" value="Add">
-			      	</div>
-	      		</form>
-	 		  </div>
-			</div>
-		  </div>
-		</div>
+            <div class="collapse" id="collapse1">
+                <div class="card card-body">
+                    <div class="container" align="center" style="width:100%; padding-top: 10px">
+                        {% from "formhelpers.html" import render_field %}
+                        <form method="POST" id="refine" action="/formulations">
+                            {{ refineSearch.csrf_token }}
+                            <b>{{ render_field(refineSearch.ingredient) }}</b>
+                            <b>{{ render_field(refineSearch.volume_filler) }}</b>
+                            <input type="submit" class="btn btn-secondary" name="button" value="Search">
+                        </form>
+                    </div>
+                </div>
+            </div>
 
-	 	<div class="container" align="left">		
-			<ul class="nav nav-tabs">
-			  <li class="nav-item">
-			    <a {% if proj_tab == True %} class="nav-link active" {% else %} class="nav-link" {% endif %} href="#Projects" data-toggle="tab" id="project_tab">Project View</a>
-			  </li>
-			  <li class="nav-item">
-			    <a {% if proj_tab == False %} class="nav-link active" {% else %} class="nav-link" {% endif %} href="#Formulations" data-toggle="tab" id="formulation+">Formulation View</a>
-			  </li>
-			</ul>
-			<div class="tab-content">
-    			<div id="Projects" {% if proj_tab == True %} class="tab-pane active in" {% else %} class="tab-pane" {% endif %}>
-				  <div class="row">
-				    <div class="col-sm">
-						<table class="table table-striped" id="owned_stock_table">
-					      <thead>
-					        <tr>
-					          <th>Name</th>
-					          <th>Project Lead</th>
-					          <th>Date Created</th>
-					        </tr>
-					      </thead>
-					      <tbody id="bootstrap-override">
-					        {% for project in projects %}
-					        <tr id="project_row" class="clickable">
-					          <td class="hidden">{{ project.id }}</td>
-					          <td>{{ project.name }}</td>
-					          <td>{{ project.project_lead}}</td>
-					          <td>{{ project.date_started}}</td>
-					        </tr>
-					        {% endfor %}
-					      </tbody>
-					    </table>
-					</div>
-				  </div>
-			    </div>
+          <div class="row">
+            <div class="col-sm">
+                <table class="table table-striped" id="owned_stock_table">
+                  <thead>
+                    <tr>
+                      <th>Name</th>
+                      <th>Ingredients</th>
+                    </tr>
+                  </thead>
+                  <tbody id="bootstrap-override">
+                    {% for formulation in formulas %}
+                    <tr id="formulation_row" class="clickable">
+                      <td class="hidden">{{ formulation.project_id }}</td>
+                      <td>{{ formulation.name }}</td>
+                      <td>
+                        {{formulation.chemicals|length}}
+                        {% for chemical in formulation.chemicals %}
+                          {{chemical.name}}
+                        {% endfor %}
+                      </td>
+                    </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+            </div>
+          </div>
+        </div>
+    </div>
 
-			    <div id="Formulations" {% if proj_tab == False %} class="tab-pane active in" {% else %} class="tab-pane" {% endif %}>
-			    	<div class="container" align="center" style="display:flex; justify-content:flex-start; width:100%; padding-top: 20px; padding-bottom: 20px;">
-			    		<button class="btn btn-primary" type="button" data-toggle="collapse" data-target="#collapse1" aria-expanded="false" aria-controls="collapse1">Refine Search</button>
-			    	</div>
-
-					<div class="collapse" id="collapse1">
-						<div class="card card-body">
-							<div class="container" align="center" style="width:100%; padding-top: 10px">
-							   	{% from "formhelpers.html" import render_field %}
-							   	<form method="POST" id="refine" action="/formulations">
-							   		{{ refineSearch.csrf_token }}
-						 	   		<b>{{ render_field(refineSearch.ingredient) }}</b>
-						 	   		<b>{{ render_field(refineSearch.volume_filler) }}</b>
-						 	   		<input type="submit" class="btn btn-secondary" name="button" value="Search">
-								</form>
-						 	</div>
-						</div>
-					</div>
-
-			      <div class="row">
-				    <div class="col-sm">
-						<table class="table table-striped" id="owned_stock_table">
-					      <thead>
-					        <tr>
-					          <th>Name</th>
-					          <th>Project</th>
-					        </tr>
-					      </thead>
-					      <tbody id="bootstrap-override">
-					        {% for formulation in formulas %}
-					        <tr id="formulation_row" class="clickable">
-					          <td class="hidden">{{ formulation.project_id }}</td>
-					          <td>{{ formulation.name }}</td>
-					          {% for project in all_projects %}
-					          	{% if project.id == formulation.project_id %}
-			  						<td>{{ project.name }}</td>
-			  					{% endif %}
-			  				  {% endfor %}
-					        </tr>
-					        {% endfor %}
-					      </tbody>
-					    </table>
-					</div>
-				  </div>
-			    </div>
-			</div>
-		</div>
-
-		<script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
-		<script type="text/javascript">
-			$(function(){
-				$('tr#project_row.clickable, tr#formulation_row.clickable').click(function(event) {
-					var proj_id = event.target.parentNode.cells.item(0).innerText;
-					if (proj_id) {
-						if (event.target.parentNode.id == 'formulation_row') {
-							var formula_name = event.target.parentNode.cells.item(1).innerText;
-							window.location = '/project_details?id=' + proj_id + '&formula=' + formula_name;
-						} else {
-        					window.location = '/project_details?id=' + proj_id;
-        				}
-    				}
-				});
-			});
-		</script>
-
-	</body>
-</html>
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+    <script type="text/javascript">
+    $(function(){
+        $('tr#project_row.clickable, tr#formulation_row.clickable').click(function(event) {
+            var proj_id = event.target.parentNode.cells.item(0).innerText;
+            if (proj_id) {
+                if (event.target.parentNode.id == 'formulation_row') {
+                    var formula_name = event.target.parentNode.cells.item(1).innerText;
+                    window.location = '/project_details?id=' + proj_id + '&formula=' + formula_name;
+                } else {
+                    window.location = '/project_details?id=' + proj_id;
+                }
+            }
+        });
+    });
+    </script>
+{% endblock %}

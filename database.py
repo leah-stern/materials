@@ -21,9 +21,6 @@ os.environ['DATABASE_URL'] = 'postgresql://postgres:postgres@postgres/postgres'
 app.config['SQLALCHEMY_DATABASE_URI'] = os.environ['DATABASE_URL']
 db = SQLAlchemy(app)
 migrate = Migrate(app, db) 
-# manager = Manager(app)
-
-# manager.add_command('db', MigrateCommand)
 
 # association table to handle many-to-many relationship between chemicals and formulations
 association = db.Table('association',
@@ -174,14 +171,10 @@ class searchForm(FlaskForm):
 	id = db.Column(db.Integer, primary_key=True)
 	search = StringField('')
 
-def chemical_query(): return Chemical.query
+def chemical_query(): 
+	return Chemical.query
 
 class refineSearchForm(FlaskForm):
 	id = db.Column(db.Integer, primary_key=True)
 	ingredient = QuerySelectField(query_factory = chemical_query, allow_blank=True)
 	volume_filler = IntegerField('% volume of filler ', validators = [Optional()])
-
-
-# if __name__ == '__main__':
-# 	manager.run()
-

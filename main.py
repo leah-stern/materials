@@ -63,7 +63,6 @@ def chemical_inventory():
     if request.method == 'POST':
         if request.form['button'] == 'Add':
             created = create_chemical(form)
-            print(created, flush=True)
         else: 
             selection = search.data['search']
             if selection != '':
@@ -272,7 +271,7 @@ def project_details():
     currentProject = Project.query.filter(Project.id==project_id).first()
 
     # pass the current project to the project_details page
-    return render_template("project_details.html", selected=currentProject, formula=formula_name)
+    return render_template("project_details.html", selected=currentProject, selected_formula=formula_name)
 
 @app.route('/authenticate', methods=['GET', 'POST'])
 @cross_origin(origin='localhost',headers=['Content- Type','Authorization'])
@@ -374,13 +373,33 @@ def create_sheet(projName):
 
     update = sheets.spreadsheets().batchUpdate(spreadsheetId=sheet_id, body=data).execute()
 
-    values = [["Results"]]
+    values = [["Formulation/Properties", "Chemical Property 1", "Chemical Property 2", "Chemical Property 3", "Formulation 1", "Formulation 2"],
+              ["Notes"],
+              ["Results"]]
     body = {"values" : values}
     update = sheets.spreadsheets().values().update(spreadsheetId=sheet_id, range="Sheet1!A1", valueInputOption="USER_ENTERED", body=body).execute()
 
-    values = [["Ingredients"]]
+    values = [["Ingredients"],
+              ["Oligomers"]]
     body = {"values" : values}
-    update = sheets.spreadsheets().values().update(spreadsheetId=sheet_id, range="Sheet1!A7", valueInputOption="USER_ENTERED", body=body).execute()
+    update = sheets.spreadsheets().values().update(spreadsheetId=sheet_id, range="Sheet1!A9", valueInputOption="USER_ENTERED", body=body).execute()
+
+    values = [["Total Matrix"],
+              ["Photopackage"]]
+    body = {"values" : values}
+    update = sheets.spreadsheets().values().update(spreadsheetId=sheet_id, range="Sheet1!A18", valueInputOption="USER_ENTERED", body=body).execute()
+
+    values = [["Pigment"]]
+    body = {"values" : values}
+    update = sheets.spreadsheets().values().update(spreadsheetId=sheet_id, range="Sheet1!A23", valueInputOption="USER_ENTERED", body=body).execute()
+
+    values = [["Fillers"]]
+    body = {"values" : values}
+    update = sheets.spreadsheets().values().update(spreadsheetId=sheet_id, range="Sheet1!A26", valueInputOption="USER_ENTERED", body=body).execute()
+
+    values = [["Misc. Additives"]]
+    body = {"values" : values}
+    update = sheets.spreadsheets().values().update(spreadsheetId=sheet_id, range="Sheet1!A30", valueInputOption="USER_ENTERED", body=body).execute()
 
     return sheet_id
 
@@ -423,7 +442,7 @@ def sheet_template():
             }, {"repeatCell": {
                 "range": {
                   "startRowIndex": 0,
-                  "endRowIndex": 1
+                  "endRowIndex": 3
                 },
                 "cell": {
                   "userEnteredFormat": {
@@ -448,8 +467,112 @@ def sheet_template():
               }
         }, {"repeatCell": {
                 "range": {
-                  "startRowIndex": 6,
-                  "endRowIndex": 7
+                  "startRowIndex": 8,
+                  "endRowIndex": 10
+                },
+                "cell": {
+                  "userEnteredFormat": {
+                    "backgroundColor": {
+                      "red": 0.9,
+                      "green": 0.9,
+                      "blue": 0.9
+                    },
+                    "horizontalAlignment" : "LEFT",
+                    "textFormat": {
+                      "foregroundColor": {
+                        "red": 0,
+                        "green": 0,
+                        "blue": 0
+                      },
+                      "fontSize": 10,
+                      "bold": True
+                    }
+                  }
+                },
+                "fields": "userEnteredFormat(backgroundColor,textFormat,horizontalAlignment)"
+              }
+        }, {"repeatCell": {
+                "range": {
+                  "startRowIndex": 17,
+                  "endRowIndex": 19
+                },
+                "cell": {
+                  "userEnteredFormat": {
+                    "backgroundColor": {
+                      "red": 0.9,
+                      "green": 0.9,
+                      "blue": 0.9
+                    },
+                    "horizontalAlignment" : "LEFT",
+                    "textFormat": {
+                      "foregroundColor": {
+                        "red": 0,
+                        "green": 0,
+                        "blue": 0
+                      },
+                      "fontSize": 10,
+                      "bold": True
+                    }
+                  }
+                },
+                "fields": "userEnteredFormat(backgroundColor,textFormat,horizontalAlignment)"
+              }
+        }, {"repeatCell": {
+                "range": {
+                  "startRowIndex": 22,
+                  "endRowIndex": 23
+                },
+                "cell": {
+                  "userEnteredFormat": {
+                    "backgroundColor": {
+                      "red": 0.9,
+                      "green": 0.9,
+                      "blue": 0.9
+                    },
+                    "horizontalAlignment" : "LEFT",
+                    "textFormat": {
+                      "foregroundColor": {
+                        "red": 0,
+                        "green": 0,
+                        "blue": 0
+                      },
+                      "fontSize": 10,
+                      "bold": True
+                    }
+                  }
+                },
+                "fields": "userEnteredFormat(backgroundColor,textFormat,horizontalAlignment)"
+              }
+        }, {"repeatCell": {
+                "range": {
+                  "startRowIndex": 25,
+                  "endRowIndex": 26
+                },
+                "cell": {
+                  "userEnteredFormat": {
+                    "backgroundColor": {
+                      "red": 0.9,
+                      "green": 0.9,
+                      "blue": 0.9
+                    },
+                    "horizontalAlignment" : "LEFT",
+                    "textFormat": {
+                      "foregroundColor": {
+                        "red": 0,
+                        "green": 0,
+                        "blue": 0
+                      },
+                      "fontSize": 10,
+                      "bold": True
+                    }
+                  }
+                },
+                "fields": "userEnteredFormat(backgroundColor,textFormat,horizontalAlignment)"
+              }
+        }, {"repeatCell": {
+                "range": {
+                  "startRowIndex": 29,
+                  "endRowIndex": 30
                 },
                 "cell": {
                   "userEnteredFormat": {
@@ -474,8 +597,8 @@ def sheet_template():
               }
         }, {'setDataValidation': {
             'range': {
-                'startRowIndex': 7,
-                'endRowIndex': 11,
+                'startRowIndex': 10,
+                'endRowIndex': 17,
                 'startColumnIndex': 0,
                 'endColumnIndex': 1
             },
@@ -488,8 +611,50 @@ def sheet_template():
             }}
         }, {'setDataValidation': {
             'range': {
-                'startRowIndex': 1,
-                'endRowIndex': 5,
+                'startRowIndex': 19,
+                'endRowIndex': 22,
+                'startColumnIndex': 0,
+                'endColumnIndex': 1
+            },
+            'rule': {
+                'condition': {
+                    'type': 'ONE_OF_LIST',
+                        'values': chemical_names
+                },
+                'strict': True
+            }}
+        }, {'setDataValidation': {
+            'range': {
+                'startRowIndex': 23,
+                'endRowIndex': 25,
+                'startColumnIndex': 0,
+                'endColumnIndex': 1
+            },
+            'rule': {
+                'condition': {
+                    'type': 'ONE_OF_LIST',
+                        'values': chemical_names
+                },
+                'strict': True
+            }}
+        }, {'setDataValidation': {
+            'range': {
+                'startRowIndex': 30,
+                'endRowIndex': 33,
+                'startColumnIndex': 0,
+                'endColumnIndex': 1
+            },
+            'rule': {
+                'condition': {
+                    'type': 'ONE_OF_LIST',
+                        'values': chemical_names
+                },
+                'strict': True
+            }}
+        }, {'setDataValidation': {
+            'range': {
+                'startRowIndex': 3,
+                'endRowIndex': 8,
                 'startColumnIndex': 0,
                 'endColumnIndex': 1
             },

@@ -1,48 +1,39 @@
-<doctype html>
+{% extends "details_template.html" %}
 
-<html>
-	<head>
-		<title>{{selected.name}} Details</title>
-		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css">
-		<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
-		<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
-		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"></script>
-	</head>
+{% block title %} {{selected.name}} Details {% endblock %}
 
-	<body>
-		<div class="jumbotron">
-			<div style="width:10%; padding-left: 10px;">
-				<button type="button" class="btn btn-primary" onclick="window.location.href='/chemicals';">Back</button>
-			</div>
-		  <h1 class="display-4" align="center">{{selected.name}}</h1>
-		  <p class="lead" align="center">{{selected.goal}}</p>
-		  <hr class="my-4">
-		</div>
+{% block header_content %}
+    <div style="width:10%; padding-left: 10px;">
+        <button type="button" class="btn btn-primary" onclick="window.location.href='/chemicals';">Back</button>
+    </div>
+    <h1 class="display-4" align="center">{{selected.name}}</h1>
+    <p class="lead" align="center">{{selected.goal}}</p>
+    <hr class="my-4">
+{% endblock %}
 
-		<div class="container" align="left">
-		  <p>Alternate Name: {{selected.alternate_name}}</p>
-		  <p>Vendor: {{selected.vendor}}</p>
-		  <p>CAS: {{selected.CAS}}</p>
-		  <p>Description: {{selected.description}}</p>
-		  <p>Hazard Note: {{selected.hazard_note}}</p>
-		  <p>GHS Hazards: </p>
-		  	<ul>
-		  		<li>Flammable: {{selected.GHS_flammable}}</li>
-		  		<li>Explosive: {{selected.GHS_explosive}}</li>
-		  		<li>Health Hazard: {{selected.GHS_health_hazard}}</li>
-		  		<li>Irritant: {{selected.GHS_irritant}}</li>
-		  	</ul>
-		  <p>Bulding: {{selected.building_location}}</p>
-		  <p>Room: {{selected.room_location}}</p>
-		  <p>Cabinet: {{selected.cabinet_location}}</p>
-		  <p>Shelf: {{selected.shelf_location}}</p>
-		  <p>Formulations containing {{selected.name}}:</p>
-		  <ul>
-			  {% for formula in selected.formulas.all() %}
-			  	<li>{{formula}}</li>
-			  {% endfor %}
-		  </ul>
-	    </div>
-	</body>
-</html>
+{% block body_content %}
+    <div class="container" align="left">
+      <p>Alternate Name: {{selected.alternate_name}}</p>
+      <p>Vendor: {{selected.vendor}}</p>
+      <p>CAS: {{selected.CAS}}</p>
+      <p>Description: {{selected.description}}</p>
+      <p>Hazard Note: {{selected.hazard_note}}</p>
+      <p>GHS Hazards: </p>
+        <ul>
+            <li>Flammable: {{selected.GHS_flammable}}</li>
+            <li>Explosive: {{selected.GHS_explosive}}</li>
+            <li>Health Hazard: {{selected.GHS_health_hazard}}</li>
+            <li>Irritant: {{selected.GHS_irritant}}</li>
+        </ul>
+      <p>Bulding: {{selected.building_location}}</p>
+      <p>Room: {{selected.room_location}}</p>
+      <p>Cabinet: {{selected.cabinet_location}}</p>
+      <p>Shelf: {{selected.shelf_location}}</p>
+      <p>Formulations containing {{selected.name}}:</p>
+      <ul>
+          {% for formula in selected.formulas.all() %}
+            <li>{{formula}}</li>
+          {% endfor %}
+      </ul>
+    </div>
+{% endblock %}
